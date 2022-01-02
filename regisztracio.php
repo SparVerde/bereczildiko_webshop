@@ -1,5 +1,6 @@
 <?php
-
+require_once './connect.php';
+$err=false;
 //a feldolgozás módja POST
 //megnézzük, hogy rákattintott-e filter_input methódussal, POST környezeti változóban regisztralt boolen értéke
 if(filter_input(INPUT_POST, "regisztral", FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)){
@@ -9,19 +10,15 @@ if(filter_input(INPUT_POST, "regisztral", FILTER_VALIDATE_BOOLEAN, FILTER_NULL_O
     //majd az sql INSERT utasítás
     $felhasznalo_nev = filter_input(INPUT_POST, "felhasznalo_nev", FILTER_SANITIZE_STRING, FILTER_NULL_ON_FAILURE);
     //var_dump($felhasznalo_nev); //ellenőrzés!
-    /*$sql_user = "SELECT `felhasznalo_nev` FROM `felhasznalo` WHERE `felhasznalo_nev` = '$felhasznalo_nev' LIMIT 1";
-    if ($sql_user == 1) {
-    $used = true;*/
-    /*if(felhasznalo_nev_verify($felhasznalo_nev, $result->fetch_assoc()["felhasznalo_nev"])){
-    echo 'A felhasználónév foglalt!';}*/
+    $sql_user = "SELECT `felhasznalo_nev` FROM `felhasznalo` WHERE `felhasznalo_nev` = '$felhasznalo_nev' LIMIT 1";
+    //var_dump($sql_user);
+    $result = $conn->query($sql_user);
+    //var_dump($result);
+    if($result->num_rows > 0){
+    $err = true;    
+    echo 'A felhasználónév foglalt!';}
+    //else{echo 'A felhasználónév nem foglalt!';}
     $email = filter_input(INPUT_POST, "email", FILTER_VALIDATE_EMAIL, FILTER_NULL_ON_FAILURE);
-    if (filter_var($email, FILTER_VALIDATE_EMAIL)) 
-    {
-        //echo("$email is a valid email address");
-      } 
-      else {
-        echo("$email is not a valid email address");
-      }
     //var_dump($email);
     $password = password_hash(filter_input(INPUT_POST, "password"), PASSWORD_BCRYPT);
     //var_dump($password);
@@ -35,14 +32,13 @@ if(filter_input(INPUT_POST, "regisztral", FILTER_VALIDATE_BOOLEAN, FILTER_NULL_O
     //var_dump($iranyito_szam);
     $cim = filter_input(INPUT_POST, "cim");
     //var_dump($cim);
-    $sql = "INSERT INTO `felhasznalo` (`felhasznalo_nev`, `email`, `password`, `teljes_nev`, `phone`, `szuletesi_datum`, `iranyito_szam`, `cim`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO `felhasznalo`(`felhasznalo_nev`, `email`, `password`, `teljes_nev`, `phone`, `szuletesi_datum`, `iranyito_szam`, `cim`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     //előkészítjük prepare() és ezzel egy utasítás objektum jön létre stmt (statement) 
     //ennek adjuk át a felhasználó értéket a bind_param metódussal az értékek számának (s db szám) és típusának megadásával
     //password a password hash-el közlekedik (lásd fent): 
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssssssss", $felhasznalo_nev, $email, $password, $teljes_nev, $phone, $szuletesi_datum, $iranyito_szam, $cim);
     //majd a statement-et lefuttatjuk execute() metódussal, ami logikia értéket ad vissza, ha true Sikeres regisztráció...
-    //var_dump($stmt->execute());
     if($stmt->execute()){
           echo '<div class="alert alert-succes">
           <strong>Sikeres regisztráció!</strong>
@@ -53,15 +49,16 @@ if(filter_input(INPUT_POST, "regisztral", FILTER_VALIDATE_BOOLEAN, FILTER_NULL_O
           <strong>Rögzítés sikertelen!</strong>
           </div>';
       }
-        
-    //ha nem regisztrál ez lesz az else ágban.
-    
-} else {
+      var_dump($stmt->execute()); //ellenőrzés
+    //ha nem regisztrál ez lesz az else ágban. 
+}
+
+
 ?>
 
 <h1>REGISZTRÁCIÓ</h1>
 <!--a name érték megadása a php miatt kell (ott a name értéket használjuk az inputból), és bootstrap osztályt használtunk class=-->
-<form method="POST">
+<form method="POST" action="index.php?menu=regisztracio">
       <div class="form-group">
             <label for="felhasznalo_nev">Felhasználó név</label>
             <input type="text" class="form-control" id="felhasznalo_nev" name="felhasznalo_nev" required
@@ -79,12 +76,14 @@ if(filter_input(INPUT_POST, "regisztral", FILTER_VALIDATE_BOOLEAN, FILTER_NULL_O
       </div>
       <div class="form-group">
             <label for="teljes_nev">Teljes név</label>
-            <input type="text" class="form-control" id="teljes_nev" name="teljes_nev" required>
+            <input type="text" class="form-control" id="teljes_nev" name="teljes_nev" required
+            value="<?php echo isset($teljes_nev)?$teljes_nev:""; ?>">
       </div>
      
       <div class="form-group">
             <label for="phone">Telefonszám</label>
-            <input type="text" class="form-control" id="phone" name="phone" required>
+            <input type="text" class="form-control" id="phone" name="phone" required
+            value="<?php echo isset($phone)?$phone:""; ?>">
       </div>
       <div class="form-group">
             <label for="szuletesi_datum">Születési dátum</label>
@@ -92,17 +91,20 @@ if(filter_input(INPUT_POST, "regisztral", FILTER_VALIDATE_BOOLEAN, FILTER_NULL_O
       </div>
       <div class="form-group">
             <label for="iranyito_szam">Irányító szám</label>
-            <input type="text" class="form-control" id="iranyito_szam" name="iranyito_szam" maxlength="4" size="4" required>
+            <input type="text" class="form-control" id="iranyito_szam" name="iranyito_szam" maxlength="4" size="4" required
+            value="<?php echo isset($iranyito_szam)?$iranyito_szam:""; ?>">
       </div>
       
       <div class="form-group">
             <label for="cim">Cím</label>
-            <input type="text" class="form-control" id="cim" name="cim" required>
+            <input type="text" class="form-control" id="cim" name="cim" required
+            value="<?php echo isset($cim)?$cim:""; ?>">
       </div>
 <!--a button-nak valut kell adnunk-->
     <button type="submit" class="btn btn-primary" name="regisztral" value="true">Regisztráció</button>
 </form>
 <?php
 //megjelenítés, hogy kapott-e adatot:
-//var_dump($_POST);
-}
+var_dump($_POST); //ellenőrzés
+
+

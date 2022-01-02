@@ -17,12 +17,16 @@ if(filter_input(INPUT_POST, "belepes", FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_F
     //lekérdezzük, hogy ilyen adatokkal van-e felhasználónk
     $result = $stmt->get_result();
     if(password_verify($password, $result->fetch_assoc()["password"])){
-        echo 'Sikeres belépés';
+        
         //-- felhasználói adatok beolvasása
         $result = $conn->query('SELECT * FROM `felhasznalo` WHERE `felhasznalo_nev`= "'.$loginname.'";');
         $_SESSION['felhasznalo'] = $result->fetch_assoc();
         $_SESSION['login'] = true;
+        echo '<div class="alert alert-success">
+        <strong>Sikeres bejelentkezés!</strong>
+        </div>';
         header("Location: index.php?menu=home");
+        
     } else {
         //echo 'Belépés sikertelen!';    
         echo '<div class="alert alert-danger">
