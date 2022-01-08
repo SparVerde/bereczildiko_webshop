@@ -29,6 +29,9 @@ if($login){
         case 'bejelentkezes':
             require_once 'bejelentkezes.php';
             break;
+        case 'bejelent':
+            require_once 'reg.php';
+            break;
         default:
             break;
     }

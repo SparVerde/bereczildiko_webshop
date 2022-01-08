@@ -72,7 +72,8 @@ $_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
                     <a class="nav-link <?php echo $menu=="home"?"active":""; ?>" href="index.php?menu=home">Főoldal</a>
                 </li>
 <?php
-        if(!$login){
+//phpinfo();
+if(!$login){
             ?>
                 <li class="nav-item jobb" style="float:right">
                     <!--href get-tel kapja meg, mindíg az aktuális lap az active ezt php kódként adhatjuk meg -->

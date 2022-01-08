@@ -2,7 +2,7 @@
 <?php
 require_once './connect.php';
         if(filter_input(INPUT_POST,"hozzaadas", FILTER_VALIDATE_BOOLEAN)){
-            echo("hozzaadas is valid");
+            //echo("hozzaadas is valid");
            $nev = filter_input(INPUT_POST,"nev", FILTER_SANITIZE_STRING, FILTER_NULL_ON_FAILURE);
            var_dump($nev);
             $ar = filter_input(INPUT_POST,"ar", FILTTER_SANITIZE_INT, FILTER_NULL_ON_FAILURE);
@@ -29,7 +29,7 @@ require_once './connect.php';
 </div>
 <div class="form-group">
 <label for ="ar">Adja meg a termék eladási árát!</label><br>
-<input type="number" id="ar" name="ar" min = "1" value="<?php echo isset($ar)?$ar:""; ?>"></input>
+<input type="number" id="ar" name="ar" min = "1" required value="<?php echo isset($ar)?$ar:""; ?>"></input>
 </div>
 <div class="form-group">
 <label for ="file">Válassza ki a feltöltendő képet!</label><br>
